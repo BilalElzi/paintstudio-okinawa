@@ -67,6 +67,19 @@
   if (cineVideo.readyState >= 1) setCineDur();
   cineVideo.addEventListener("loadedmetadata", setCineDur);
 
+  /* Anti-freeze du scrub : on ne lance jamais un seek tant que le précédent
+     n'est pas terminé (sinon les seeks s'empilent et la vidéo gèle). */
+  let cineSeeking = false, cineLastSeek = -1;
+  cineVideo.addEventListener("seeked", () => { cineSeeking = false; });
+  /* fastSeek (Safari/Firefox) : va à la keyframe la plus proche, bien plus
+     fluide pour un scrub. Chrome ne l'a pas → currentTime classique. */
+  const hasFastSeek = typeof cineVideo.fastSeek === "function";
+  let cineSeekAt = 0;
+  function cineSeek(t) {
+    cineSeeking = true; cineLastSeek = t; cineSeekAt = performance.now();
+    try { hasFastSeek ? cineVideo.fastSeek(t) : (cineVideo.currentTime = t); } catch (e) { cineSeeking = false; }
+  }
+
   if (reduceMotion) {
     /* accessibilité : pas de scrub, simple lecture en boucle */
     cine.classList.add("cine--flat");
@@ -157,11 +170,14 @@
   }
   function frame() {
     if (needsUpdate) { updateScene(); needsUpdate = false; }
-    /* Lissage du scrub de l'interlude (lerp) */
+    /* Lissage du scrub de l'interlude (lerp) — un seul seek en vol à la fois */
     if (!reduceMotion && cineDur) {
       cineCur += (cineTarget - cineCur) * 0.12;
-      if (cineVideo.readyState >= 2 && Math.abs(cineTarget - cineCur) > 0.003) {
-        try { cineVideo.currentTime = cineCur; } catch (e) {}
+      // garde-fou : si un seek traîne > 400 ms, on le considère terminé
+      if (cineSeeking && performance.now() - cineSeekAt > 400) cineSeeking = false;
+      if (cineVideo.readyState >= 2 && !cineSeeking &&
+          Math.abs(cineCur - cineLastSeek) > 0.03) {
+        cineSeek(cineCur);
       }
     }
     /* Lissage de la parade (lerp → timeline GSAP) */

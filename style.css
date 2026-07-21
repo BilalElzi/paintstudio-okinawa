@@ -404,8 +404,8 @@ body.loaded .hero__cta{opacity:1;transform:none;transition:.9s var(--ease-out) .
 .cine{height:300vh;position:relative}
 .cine__sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--paper)}
 .cine__video{
-  width:100%;height:100%;object-fit:cover;object-position:50% 45%;transform:scale(1.13); /* léger zoom : masque le filigrane du coin */
-  /* poster en background cover (fiable partout, cf. hero) */
+  display:block;width:100%;height:100%;transform:scale(1.13); /* léger zoom : masque le filigrane du coin */
+  /* poster en background cover : visible tant que les frames se chargent */
   background:var(--sand) url("assets/poster-1.jpg") 50% 45% / cover no-repeat;
 }
 .cine__veil{

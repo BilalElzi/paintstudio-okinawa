@@ -58,50 +58,59 @@
       else video.pause();
     }, { threshold: 0 }).observe(hero);
   }
-  /* ---------- Interlude ciné : la vidéo boutique avance au scroll ---------- */
-  const cine      = $("#cine");
-  const cineVideo = $("#cineVideo");
-  const cineQuote = $("#cineQuote");
-  let cineDur = 0, cineTarget = 0, cineCur = 0;
-  const setCineDur = () => (cineDur = cineVideo.duration || 0);
-  if (cineVideo.readyState >= 1) setCineDur();
-  cineVideo.addEventListener("loadedmetadata", setCineDur);
+  /* ---------- Interlude ciné : séquence d'images qui avance au scroll ----------
+     Plutôt qu'une <video> (dont le seek décode depuis une keyframe → gel au
+     scroll), on précharge une suite d'images décodées et on les dessine sur
+     un canvas. Le scrub devient instantané et parfaitement fluide, à
+     l'identique sur tous les navigateurs. */
+  const cine       = $("#cine");
+  const cineQuote  = $("#cineQuote");
+  const cineCanvas = $("#cineCanvas");
+  const cctx       = cineCanvas ? cineCanvas.getContext("2d") : null; // transparent : le poster CSS reste visible avant le chargement des frames
+  const CINE_N     = 61;              // nombre de frames extraites
+  const cineImgs   = [];
+  let cineTarget = 0, cineCur = 0, cineDrawn = -1, cineStarted = false;
 
-  /* Anti-freeze du scrub : on ne lance jamais un seek tant que le précédent
-     n'est pas terminé (sinon les seeks s'empilent et la vidéo gèle). */
-  let cineSeeking = false, cineLastSeek = -1;
-  cineVideo.addEventListener("seeked", () => { cineSeeking = false; });
-  /* fastSeek (Safari/Firefox) : va à la keyframe la plus proche, bien plus
-     fluide pour un scrub. Chrome ne l'a pas → currentTime classique. */
-  const hasFastSeek = typeof cineVideo.fastSeek === "function";
-  let cineSeekAt = 0;
-  function cineSeek(t) {
-    cineSeeking = true; cineLastSeek = t; cineSeekAt = performance.now();
-    try { hasFastSeek ? cineVideo.fastSeek(t) : (cineVideo.currentTime = t); } catch (e) { cineSeeking = false; }
+  function resizeCine() {
+    if (!cctx) return;
+    const dpr = Math.min(window.devicePixelRatio, 2);
+    cineCanvas.width  = Math.round(cineCanvas.clientWidth  * dpr);
+    cineCanvas.height = Math.round(cineCanvas.clientHeight * dpr);
+    cineDrawn = -1; // force un redraw à la prochaine frame
   }
-
-  if (reduceMotion) {
-    /* accessibilité : pas de scrub, simple lecture en boucle */
-    cine.classList.add("cine--flat");
-    cineVideo.loop = true;
-    cineVideo.play().catch(() => {});
+  function drawCine(idx) {
+    const img = cineImgs[idx];
+    if (!cctx || !img || !img.complete || !img.naturalWidth) return;
+    const cw = cineCanvas.width, ch = cineCanvas.height;
+    const cr = cw / ch, ir = img.naturalWidth / img.naturalHeight;
+    let sw, sh; // recadrage « cover »
+    if (ir > cr) { sh = img.naturalHeight; sw = sh * cr; }
+    else         { sw = img.naturalWidth;  sh = sw / cr; }
+    const sx = (img.naturalWidth  - sw) * 0.5;
+    const sy = (img.naturalHeight - sh) * 0.45; // object-position 50% 45%
+    cctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+    cineDrawn = idx;
   }
-
-  /* Sur mobile, une vidéo jamais lue ne peint pas ses frames lors d'un
-     seek : on la lance une fois en muet puis on la met en pause. */
-  let cinePrimed = false;
-  function primeCine() {
-    if (cinePrimed || reduceMotion) return;
-    cinePrimed = true;
-    cineVideo.muted = true;
-    const pr = cineVideo.play();
-    if (pr && pr.then) pr.then(() => cineVideo.pause()).catch(() => { cinePrimed = false; });
-    else cineVideo.pause();
+  function preloadCine() {
+    if (cineStarted || !cctx) return;
+    cineStarted = true;
+    for (let i = 0; i < CINE_N; i++) {
+      const im = new Image();
+      im.src = "assets/cine/f" + String(i).padStart(3, "0") + ".webp";
+      cineImgs[i] = im;
+    }
+    // dessine la 1re image dès qu'elle est prête (et sur reduced-motion, on
+    // s'arrête sur une image représentative)
+    const first = cineImgs[reduceMotion ? Math.floor(CINE_N / 2) : 0];
+    first.addEventListener("load", () => { resizeCine(); drawCine(reduceMotion ? Math.floor(CINE_N / 2) : 0); }, { once: true });
   }
-  if (matchMedia("(pointer: coarse)").matches) {
-    if (cineVideo.readyState >= 2) primeCine();
-    cineVideo.addEventListener("loadeddata", primeCine, { once: true });
-    window.addEventListener("touchstart", primeCine, { once: true, passive: true });
+  if (cctx) {
+    if (reduceMotion) cine.classList.add("cine--flat");
+    // précharge quand la section approche (évite 61 requêtes au chargement)
+    new IntersectionObserver((e, obs) => {
+      if (e[0].isIntersecting) { preloadCine(); obs.disconnect(); }
+    }, { rootMargin: "1400px 0px" }).observe(cine);
+    window.addEventListener("resize", resizeCine);
   }
 
   /* ---------- Boucle de rendu (hero scrub + section active) ---------- */
@@ -141,12 +150,12 @@
     nav.classList.toggle("nav--scrolled", -hRect.top > vh * 0.85);
     dotsEl.classList.toggle("show", -hRect.top > vh * 0.5);
 
-    /* Interlude ciné : progression du scroll → cible de scrub + citation */
-    if (!reduceMotion) {
+    /* Interlude ciné : progression du scroll → cible de frame + citation */
+    if (!reduceMotion && cctx) {
       const cRect = cine.getBoundingClientRect();
       if (cRect.top < vh && cRect.bottom > 0) {
         const cp = clamp(-cRect.top / (cine.offsetHeight - vh), 0, 1);
-        if (cineDur) cineTarget = cp * (cineDur - 0.6);
+        cineTarget = cp;
         const q = clamp(1 - Math.abs(cp - 0.55) / 0.32, 0, 1);
         cineQuote.style.opacity = q.toFixed(3);
         cineQuote.style.transform =
@@ -170,15 +179,11 @@
   }
   function frame() {
     if (needsUpdate) { updateScene(); needsUpdate = false; }
-    /* Lissage du scrub de l'interlude (lerp) — un seul seek en vol à la fois */
-    if (!reduceMotion && cineDur) {
-      cineCur += (cineTarget - cineCur) * 0.12;
-      // garde-fou : si un seek traîne > 400 ms, on le considère terminé
-      if (cineSeeking && performance.now() - cineSeekAt > 400) cineSeeking = false;
-      if (cineVideo.readyState >= 2 && !cineSeeking &&
-          Math.abs(cineCur - cineLastSeek) > 0.03) {
-        cineSeek(cineCur);
-      }
+    /* Interlude : lissage (lerp) puis affichage de la frame correspondante */
+    if (!reduceMotion && cctx && cineStarted) {
+      cineCur += (cineTarget - cineCur) * 0.16;
+      const idx = clamp(Math.round(cineCur * (CINE_N - 1)), 0, CINE_N - 1);
+      if (idx !== cineDrawn) drawCine(idx);
     }
     /* Lissage de la parade (lerp → timeline GSAP) */
     if (!reduceMotion && paradeTl) {

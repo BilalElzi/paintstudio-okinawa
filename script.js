@@ -120,7 +120,7 @@
   const dots     = $$(".dot");
   const dotsEl   = $("#dots");
   const nav      = $("#nav");
-  const sections = ["hero", "about", "fig3d", "parade", "experience", "atelier", "info"]
+  const sections = ["hero", "about", "parade", "fig3d", "experience", "atelier", "info"]
     .map((id) => ({ id, el: document.getElementById(id) }))
     .filter((s) => s.el);
 

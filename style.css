@@ -488,9 +488,16 @@ body.loaded .hero__cta{opacity:1;transform:none;transition:.9s var(--ease-out) .
    ============================================================ */
 .fig3d{background:var(--paper)}
 .fig3d__splash{top:auto;bottom:-12vw;right:-10vw}
-.fig3d__inner{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(36px,5vw,80px);align-items:start}
-.fig3d__col{display:flex;flex-direction:column}
-.fig3d__cta{display:flex;flex-direction:column;align-items:flex-start;margin-top:clamp(24px,3vw,40px)}
+/* Desktop : texte en haut-gauche, réservation sous le texte (gauche),
+   modèle 3D à droite sur les deux rangées. */
+.fig3d__inner{
+  display:grid;grid-template-columns:1fr 1.1fr;grid-template-rows:auto 1fr;
+  grid-template-areas:"text stage" "cta stage";
+  gap:clamp(24px,3vw,40px) clamp(36px,5vw,80px);align-items:start;
+}
+.fig3d__text{grid-area:text}
+.fig3d__stage{grid-area:stage;align-self:center}
+.fig3d__cta{grid-area:cta;display:flex;flex-direction:column;align-items:flex-start}
 .fig3d__hint{
   display:flex;align-items:center;gap:.8em;margin:0 0 1.8rem;
   font-family:var(--f-lat);font-size:.72rem;letter-spacing:.18em;color:var(--ink-soft);text-transform:uppercase;
@@ -603,7 +610,11 @@ body.loaded .hero__cta{opacity:1;transform:none;transition:.9s var(--ease-out) .
    RESPONSIVE
    ============================================================ */
 @media (max-width:1000px){
-  .interior__inner,.info__inner,.fig3d__inner{grid-template-columns:1fr}
+  .interior__inner,.info__inner{grid-template-columns:1fr}
+  /* Mobile : une colonne, réservation sous le modèle (texte → modèle → CTA) */
+  .fig3d__inner{grid-template-columns:1fr;grid-template-rows:auto auto auto;
+    grid-template-areas:"text" "stage" "cta"}
+  .fig3d__cta{margin-top:clamp(20px,5vw,32px)}
   .fig3d__stage{aspect-ratio:4/4.2}
   .info__map{aspect-ratio:16/11}
   .footer__top{grid-template-columns:1fr 1fr}

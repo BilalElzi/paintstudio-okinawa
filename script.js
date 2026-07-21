@@ -274,22 +274,32 @@
     const right   = $('.fig--anchor[data-fig="right"]', pin);  // entre par la GAUCHE, finit à droite
     const caption = $("#paradeCaption");
 
-    const OFF     = 58;   // hors écran (vw depuis le centre)
-    const anchorX = 32;   // position finale gauche/droite (vw depuis le centre)
+    const OFF     = 78;   // hors écran (vw depuis le centre) — assez loin pour ne jamais dépasser dans les bords, même sur mobile
+    const anchorX = 32;   // position finale gauche/droite (vw depuis le centre) — desktop
+    const anchorY = 30;   // position finale haut/bas (vh depuis le centre) — mobile
     const CLOSED  = "inset(0 50% 0 50%)";  // texte masqué (fente centrale)
     const OPEN    = "inset(0 0% 0 0%)";    // texte révélé
 
+    /* Sur écran étroit, les deux figurines ne tiennent pas de part et
+       d'autre du texte : elles se calent au-dessus / en dessous. */
+    const narrow = matchMedia("(max-width: 640px)").matches;
+
     // Réduction de mouvement : composition finale, statique et lisible
     if (reduceMotion) {
-      gsap.set(left,  { x: -anchorX + "vw", opacity: 1 });
-      gsap.set(right, { x:  anchorX + "vw", opacity: 1 });
+      if (narrow) {
+        gsap.set(left,  { x: 0, y: -anchorY + "vh", opacity: 1 });
+        gsap.set(right, { x: 0, y:  anchorY + "vh", opacity: 1 });
+      } else {
+        gsap.set(left,  { x: -anchorX + "vw", opacity: 1 });
+        gsap.set(right, { x:  anchorX + "vw", opacity: 1 });
+      }
       gsap.set(caption, { opacity: 1, clipPath: OPEN, webkitClipPath: OPEN });
       return;
     }
 
-    // États initiaux : chacune hors champ, de son côté d'entrée
-    gsap.set(left,  { opacity: 1, x:  OFF + "vw", yPercent: 0, scale: .92 });
-    gsap.set(right, { opacity: 1, x: -OFF + "vw", yPercent: 0, scale: .92 });
+    // États initiaux : invisibles et hors champ (elles surgissent de nulle part)
+    gsap.set(left,  { opacity: 0, x:  OFF + "vw", yPercent: 0, scale: .92 });
+    gsap.set(right, { opacity: 0, x: -OFF + "vw", yPercent: 0, scale: .92 });
     gsap.set(caption, { opacity: 1, clipPath: CLOSED, webkitClipPath: CLOSED });
 
     // Flottement continu (indépendant du scroll)
@@ -302,16 +312,25 @@
 
     const tl = gsap.timeline({ paused: true });
 
+    // Apparition en fondu, juste après le départ (jamais visibles à l'arrêt)
+    tl.to(left,  { opacity: 1, ease: "none", duration: 0.35 }, 0.05)
+      .to(right, { opacity: 1, ease: "none", duration: 0.35 }, 0.05);
+
     // Phase A — traversée : elles partent chacune de leur côté, se croisent
-    // au centre (léger décalage vertical pour éviter tout chevauchement),
-    // et vont s'ancrer du côté opposé.
-    tl.to(left,  { x: -anchorX + "vw", scale: 1, ease: "power1.inOut", duration: 2 }, 0)
-      .to(right, { x:  anchorX + "vw", scale: 1, ease: "power1.inOut", duration: 2 }, 0)
-      // au moment du croisement, l'une passe légèrement plus haut, l'autre plus bas
-      .to(left,  { yPercent: -9, ease: "sine.inOut", duration: 1 }, 0.3)
-      .to(right, { yPercent:  9, ease: "sine.inOut", duration: 1 }, 0.3)
-      .to(left,  { yPercent: 0, ease: "sine.inOut", duration: 0.7 }, 1.3)
-      .to(right, { yPercent: 0, ease: "sine.inOut", duration: 0.7 }, 1.3);
+    // au centre, puis vont s'ancrer.
+    if (narrow) {
+      // Mobile : croisement en diagonale, puis calage haut / bas du texte.
+      tl.to(left,  { x: 0, y: -anchorY + "vh", scale: 1, ease: "power1.inOut", duration: 2 }, 0)
+        .to(right, { x: 0, y:  anchorY + "vh", scale: 1, ease: "power1.inOut", duration: 2 }, 0);
+    } else {
+      // Desktop : ancrage gauche / droite avec léger décalage vertical au croisement.
+      tl.to(left,  { x: -anchorX + "vw", scale: 1, ease: "power1.inOut", duration: 2 }, 0)
+        .to(right, { x:  anchorX + "vw", scale: 1, ease: "power1.inOut", duration: 2 }, 0)
+        .to(left,  { yPercent: -9, ease: "sine.inOut", duration: 1 }, 0.3)
+        .to(right, { yPercent:  9, ease: "sine.inOut", duration: 1 }, 0.3)
+        .to(left,  { yPercent: 0, ease: "sine.inOut", duration: 0.7 }, 1.3)
+        .to(right, { yPercent: 0, ease: "sine.inOut", duration: 0.7 }, 1.3);
+    }
 
     // Phase B — le texte se révèle du centre vers l'extérieur, dans le
     // sillage des figurines qui s'écartent (« elles ouvrent le rideau »)

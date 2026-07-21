@@ -163,11 +163,15 @@
       }
     }
 
-    /* Parade : progression du scroll → cible de la timeline GSAP */
+    /* Parade : progression du scroll → cible de la timeline GSAP.
+       LEAD : on démarre l'animation avant que la section soit collée en
+       haut (dès qu'elle est à ~mi-écran) → les shisa entrent plus tôt,
+       plus de « blanc » au début. */
     if (!reduceMotion && paradeTl) {
       const pRect = paradeEl.getBoundingClientRect();
       if (pRect.top < vh && pRect.bottom > 0) {
-        paradeTarget = clamp(-pRect.top / (paradeEl.offsetHeight - vh), 0, 1);
+        const LEAD = vh * 0.55;
+        paradeTarget = clamp((LEAD - pRect.top) / (LEAD + paradeEl.offsetHeight - vh), 0, 1);
       }
     }
 

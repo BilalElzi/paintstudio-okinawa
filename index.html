@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Démarrage toujours en haut de page. Certains navigateurs restaurent
+     la position (ou scrollent vers un élément) même avec scrollRestoration
+     = manual ; on verrouille donc le haut pendant la première seconde,
+     jusqu'à ce que l'utilisateur scrolle lui-même. Placé ici pour
+     s'exécuter avant tout rendu. -->
+<script>
+  try { history.scrollRestoration = "manual"; } catch (e) {}
+  (function () {
+    if (location.hash) return;
+    var locked = true;
+    function unlock() { locked = false; }
+    // toute intention de défilement de l'utilisateur lève le verrou
+    ["wheel", "touchstart", "keydown", "mousedown"].forEach(function (ev) {
+      addEventListener(ev, unlock, { passive: true, once: true });
+    });
+    function pin() { if (locked && window.scrollY) window.scrollTo(0, 0); }
+    pin();
+    document.addEventListener("DOMContentLoaded", pin);
+    addEventListener("load", pin);
+    var t0 = Date.now();
+    (function loop() {
+      if (!locked) return;
+      pin();
+      if (Date.now() - t0 < 1200) requestAnimationFrame(loop);
+    })();
+    setTimeout(unlock, 1300);
+  })();
+</script>
+<title>PAINT STUDIO OKINAWA ｜ 沖縄・那覇のアートスタジオ</title>
+<meta name="description" content="沖縄・那覇松尾のペイントスタジオ。ギャラリー・アトリエ・ショップ・スタジオ・ショールームがひとつに。海と光からうまれる、手づくりのアート作品。" />
+<meta name="theme-color" content="#ffffff" />
+<meta property="og:title" content="PAINT STUDIO OKINAWA" />
+<meta property="og:description" content="沖縄からうまれる、手仕事のアート。ひとつずつ、この場所で。" />
+<meta property="og:image" content="assets/poster-2.jpg" />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body class="loading">
+
+  <!-- ░░ Loader ░░ -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <div class="loader__mark">PAINT<span>STUDIO</span></div>
+      <div class="loader__jp">沖縄</div>
+      <div class="loader__bar"><span class="loader__fill" id="loaderFill"></span></div>
+    </div>
+  </div>
+
+  <!-- ░░ Navigation ░░ -->
+  <header class="nav" id="nav">
+    <a href="#hero" class="nav__logo" data-link="hero" aria-label="PAINT STUDIO OKINAWA">
+      <span class="nav__logo-main">PAINT<i>STUDIO</i></span>
+      <span class="nav__logo-sub">OKINAWA</span>
+    </a>
+    <nav class="nav__links" id="navLinks">
+      <a href="#about"    data-link="about"    data-ja="私たち"     data-en="About">私たち</a>
+      <a href="#fig3d"    data-link="fig3d"    data-ja="3Dで見る"   data-en="In 3D">3Dで見る</a>
+      <a href="#parade"   data-link="parade"   data-ja="島の手ざわり" data-en="Craft">島の手ざわり</a>
+      <a href="#experience" data-link="experience" data-ja="体験"    data-en="Experience">体験</a>
+      <a href="#atelier"  data-link="atelier"  data-ja="工房"       data-en="Studio">工房</a>
+      <a href="#info"     data-link="info"     data-ja="店舗案内"    data-en="Visit">店舗案内</a>
+    </nav>
+    <div class="nav__right">
+      <button class="lang" id="langToggle" aria-label="言語切り替え">
+        <span class="lang__opt is-on" data-lang="ja">日本語</span>
+        <span class="lang__sep">/</span>
+        <span class="lang__opt" data-lang="en">EN</span>
+      </button>
+      <button class="nav__burger" id="navBurger" aria-label="メニュー" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ░░ Side section dots ░░ -->
+  <aside class="dots" id="dots" aria-hidden="true">
+    <button class="dot" data-dot="hero"     aria-label="トップ"></button>
+    <button class="dot" data-dot="about"    aria-label="私たち"></button>
+    <button class="dot" data-dot="fig3d"    aria-label="3Dで見る"></button>
+    <button class="dot" data-dot="parade"   aria-label="島の手ざわり"></button>
+    <button class="dot" data-dot="experience" aria-label="体験"></button>
+    <button class="dot" data-dot="atelier"  aria-label="工房"></button>
+    <button class="dot" data-dot="info"     aria-label="店舗案内"></button>
+  </aside>
+
+  <main>
+
+    <!-- ░░ HERO ░░ -->
+    <section class="hero" id="hero">
+      <div class="hero__sticky">
+        <div class="hero__media" id="heroMedia">
+          <video class="hero__video" id="heroVideo" src="assets/video-2.mp4" poster="assets/poster-2.jpg"
+                 muted playsinline loop preload="auto" disablepictureinpicture></video>
+          <div class="hero__wash"></div>
+        </div>
+
+        <div class="hero__content" id="heroContent">
+          <p class="hero__eyebrow">
+            <span data-ja="沖縄・那覇 松尾" data-en="Naha · Okinawa">沖縄・那覇 松尾</span>
+            <i></i>
+            <span>PAINT STUDIO</span>
+          </p>
+          <h1 class="hero__title">
+            <span class="lines"><span data-ja="色を、" data-en="Colour,">色を、</span></span>
+            <span class="lines"><span data-ja="かたちに。" data-en="given form.">かたちに。</span></span>
+          </h1>
+          <p class="hero__lead" data-ja="沖縄の海と光からうまれる、手づくりのアート。<br>ひとつずつ、心を込めて、この場所で。"
+             data-en="Handmade art born from the sea and light of Okinawa.<br>Each piece shaped by hand, here, with care.">
+             沖縄の海と光からうまれる、手づくりのアート。<br>ひとつずつ、心を込めて、この場所で。</p>
+          <a class="hero__cta" href="#fig3d" data-ja="一体を3Dで見る" data-en="See a piece in 3D">一体を3Dで見る<span class="hero__cta-arrow">↓</span></a>
+        </div>
+
+        <div class="hero__cue" id="heroCue">
+          <span class="hero__cue-line"><i></i></span>
+          <span class="hero__cue-label" data-ja="スクロール" data-en="Scroll">スクロール</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░ ABOUT / L'UNIVERS ░░ -->
+    <section class="section about" id="about">
+      <div class="splash splash--ocean" aria-hidden="true"></div>
+      <div class="section__inner about__inner">
+        <div class="about__lead">
+          <p class="eyebrow" data-reveal><span class="idx">01</span><span data-ja="私たちについて" data-en="About us">私たちについて</span></p>
+          <h2 class="h-display" data-reveal data-ja="ひとつの場所に、<br>五つの顔。" data-en="One place,<br>five faces.">ひとつの場所に、<br>五つの顔。</h2>
+          <p class="lead" data-reveal
+             data-ja="PAINT STUDIO OKINAWA は、アートギャラリーであり、アーティストのアトリエであり、デザインショップであり、創作スタジオであり、ショールームでもあります。沖縄の海、太陽、亜熱帯の緑、白い砂——島のすべてから色をいただき、ひとつずつ手仕事で作品に変えていきます。"
+             data-en="PAINT STUDIO OKINAWA is at once an art gallery, an artists' atelier, a design shop, a creative studio and a showroom. We borrow our colours from the sea, the sun, the tropical green and the white sand of Okinawa — and turn them, one by one, into works made by hand.">
+             PAINT STUDIO OKINAWA は、アートギャラリーであり、アーティストのアトリエであり、デザインショップであり、創作スタジオであり、ショールームでもあります。沖縄の海、太陽、亜熱帯の緑、白い砂——島のすべてから色をいただき、ひとつずつ手仕事で作品に変えていきます。</p>
+        </div>
+
+        <ul class="facets">
+          <li class="facet" data-reveal><span class="facet__no">壱</span><span class="facet__jp" data-ja="ギャラリー" data-en="Gallery">ギャラリー</span><span class="facet__en">GALLERY</span></li>
+          <li class="facet" data-reveal style="--d:.08s"><span class="facet__no">弐</span><span class="facet__jp" data-ja="アトリエ" data-en="Atelier">アトリエ</span><span class="facet__en">ATELIER</span></li>
+          <li class="facet" data-reveal style="--d:.16s"><span class="facet__no">参</span><span class="facet__jp" data-ja="ショップ" data-en="Shop">ショップ</span><span class="facet__en">DESIGN SHOP</span></li>
+          <li class="facet" data-reveal style="--d:.24s"><span class="facet__no">四</span><span class="facet__jp" data-ja="スタジオ" data-en="Studio">スタジオ</span><span class="facet__en">STUDIO</span></li>
+          <li class="facet" data-reveal style="--d:.32s"><span class="facet__no">五</span><span class="facet__jp" data-ja="ショールーム" data-en="Showroom">ショールーム</span><span class="facet__en">SHOWROOM</span></li>
+        </ul>
+
+      </div>
+    </section>
+
+    <!-- ░░ INTERLUDE CINÉ — la boutique, scrubbée au scroll ░░ -->
+    <section class="cine" id="cine" aria-label="店内">
+      <div class="cine__sticky">
+        <video class="cine__video" id="cineVideo" src="assets/video-1.mp4" poster="assets/poster-1.jpg"
+               muted playsinline preload="auto" disablepictureinpicture></video>
+        <div class="cine__veil"></div>
+        <blockquote class="cine__quote" id="cineQuote">
+          <p data-ja="色を待つ、白いかたちたち。" data-en="White shapes, waiting for colour.">色を待つ、白いかたちたち。</p>
+          <cite data-ja="ここから、あなただけの一体がはじまる。" data-en="Your one-of-a-kind piece begins here.">ここから、あなただけの一体がはじまる。</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ░░ 3D — une figurine à explorer, et le lien de réservation ░░ -->
+    <section class="section fig3d" id="fig3d">
+      <div class="splash splash--ocean fig3d__splash" aria-hidden="true"></div>
+      <div class="section__inner fig3d__inner">
+        <div class="fig3d__text">
+          <p class="eyebrow" data-reveal><span class="idx">02</span><span data-ja="あなたの一体" data-en="Your piece">あなたの一体</span></p>
+          <h2 class="h-display" data-reveal
+              data-ja="想像力を、<br>解き放とう。" data-en="Let your<br>imagination loose.">想像力を、<br>解き放とう。</h2>
+          <p class="lead" data-reveal style="--d:.1s"
+             data-ja="これは、当スタジオで生まれた一体のイメージ。ドラッグしてまわして、360°からご覧ください。色も、柄も、輝きも——決めるのは、あなたの手です。"
+             data-en="This is what one of your figures could become. Drag to spin it around and see every angle. The colours, the patterns, the shine — every choice is in your hands.">
+             これは、当スタジオで生まれた一体のイメージ。ドラッグしてまわして、360°からご覧ください。色も、柄も、輝きも——決めるのは、あなたの手です。</p>
+          <div class="fig3d__hint" data-reveal style="--d:.2s">
+            <span class="fig3d__ring"></span><span data-ja="ドラッグで回転できます" data-en="Drag to rotate">ドラッグで回転できます</span>
+          </div>
+          <a class="btn-insta" href="https://www.instagram.com/paintstudio_okinawa/" target="_blank" rel="noopener" data-reveal style="--d:.3s">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="17.3" cy="6.7" r="1.3" fill="currentColor"/></svg>
+            <span data-ja="Instagram で予約する" data-en="Book on Instagram">Instagram で予約する</span>
+            <i>↗</i>
+          </a>
+          <p class="fig3d__note" data-reveal style="--d:.38s"
+             data-ja="ご予約は Instagram のメッセージ（DM）から。お気軽にどうぞ。"
+             data-en="Reservations are taken through Instagram DM — just send us a message.">
+             ご予約は Instagram のメッセージ（DM）から。お気軽にどうぞ。</p>
+        </div>
+        <div class="fig3d__stage" id="figStage" data-reveal style="--d:.1s">
+          <canvas id="figCanvas"></canvas>
+          <div class="fig3d__loading" id="figLoading" aria-hidden="true"><span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░ PARADE — animation figurines au scroll (GSAP) ░░ -->
+    <section class="parade" id="parade" aria-label="島の手ざわり">
+      <div class="parade__pin" id="paradePin">
+        <div class="splash splash--coral parade__splash" aria-hidden="true"></div>
+
+        <!-- Deux figurines : elles entrent chacune d'un côté, se croisent,
+             puis s'immobilisent à gauche / à droite en révélant le texte -->
+        <div class="fig fig--anchor" data-fig="left"><div class="fig__inner"><img src="assets/figurines/fig-shisa2.png" alt="" /></div></div>
+        <div class="fig fig--anchor" data-fig="right"><div class="fig__inner"><img src="assets/figurines/fig-shisa1.png" alt="" /></div></div>
+
+        <!-- Texte central du final -->
+        <div class="parade__caption" id="paradeCaption">
+          <p class="parade__k"
+             data-ja="沖縄のアートを、この手で。" data-en="The art of Okinawa, made by hand.">沖縄のアートを、この手で。</p>
+          <p class="parade__s"
+             data-ja="島の心を宿した、ひとつだけの作品。" data-en="Singular pieces, shaped in the spirit of the island.">島の心を宿した、ひとつだけの作品。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░ EXPERIENCE / L'ATELIER À VIVRE (peindre sa figurine, sur réservation) ░░ -->
+    <section class="section interior" id="experience">
+      <div class="splash splash--green" aria-hidden="true"></div>
+      <div class="section__inner interior__inner">
+        <div class="interior__text">
+          <p class="eyebrow" data-reveal><span class="idx">03</span><span data-ja="体験" data-en="Paint Experience">体験</span></p>
+          <h2 class="h-display" data-reveal
+              data-ja="まっしろから、<br>はじめよう。" data-en="Start from<br>pure white.">まっしろから、<br>はじめよう。</h2>
+          <p class="lead" data-reveal style="--d:.1s"
+             data-ja="まっ白なフィギュアをひとつ選んで、色を垂らして、筆をすべらせて。決まりはありません。うまい・へたも、ありません。旅の思い出に、雨の日の過ごし方に、大切な人との時間に。仕上がった一体は、世界にひとつだけの作品です。ご来店は予約制です。"
+             data-en="Choose a blank white figure, drip the colours, let the brush glide. There are no rules here — and no such thing as being good or bad at it. A keepsake of your trip, a plan for a rainy day, time with someone special. The piece you finish is one of a kind, and it's yours. Visits are by reservation.">
+             まっ白なフィギュアをひとつ選んで、色を垂らして、筆をすべらせて。決まりはありません。うまい・へたも、ありません。旅の思い出に、雨の日の過ごし方に、大切な人との時間に。仕上がった一体は、世界にひとつだけの作品です。ご来店は予約制です。</p>
+        </div>
+        <ul class="spaces">
+          <li class="space" data-reveal><span data-ja="旅の思い出に" data-en="A travel keepsake">旅の思い出に</span></li>
+          <li class="space" data-reveal style="--d:.06s"><span data-ja="カップル・ご家族で" data-en="Couples &amp; families">カップル・ご家族で</span></li>
+          <li class="space" data-reveal style="--d:.12s"><span data-ja="雨の日のプランに" data-en="A rainy-day plan">雨の日のプランに</span></li>
+          <li class="space" data-reveal style="--d:.18s"><span data-ja="はじめてでも安心" data-en="No experience needed">はじめてでも安心</span></li>
+          <li class="space" data-reveal style="--d:.24s"><span data-ja="日本語・英語OK" data-en="English &amp; Japanese friendly">日本語・英語OK</span></li>
+          <li class="space space--cta" data-reveal style="--d:.3s"><a href="#info"><span data-ja="ご予約はこちら" data-en="Book your visit">ご予約はこちら</span><i>→</i></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ░░ ATELIER / L'ATELIER ░░ -->
+    <section class="atelier" id="atelier">
+      <div class="atelier__media">
+        <img src="assets/photos/atelier.jpg" alt="PAINT STUDIO OKINAWA のアトリエ内観。棚に並ぶ真っ白なフィギュアと絵の具。" loading="lazy" />
+        <div class="atelier__veil"></div>
+      </div>
+      <div class="atelier__panel" data-reveal>
+        <p class="eyebrow eyebrow--light" data-reveal><span class="idx">04</span><span data-ja="工房" data-en="The Studio">工房</span></p>
+        <h2 class="h-display h-display--light"
+            data-ja="すべては、<br>この場所で。" data-en="All of it,<br>made right here.">すべては、<br>この場所で。</h2>
+        <p class="lead lead--light"
+           data-ja="真っ白なフィギュアが、色をまとって作品になる。企画から彩色、仕上げまで——ひとつずつ、この松尾のアトリエで生まれます。地元の手仕事だからこそ宿る、機械にはつくれない揺らぎと温もりを大切にしています。"
+           data-en="A blank white figure takes on colour and becomes a work of art. From concept to painting to finishing — each piece is born, one at a time, in this Matsuo atelier. Made locally, by hand, with the quiet imperfection and warmth no machine can give.">
+           真っ白なフィギュアが、色をまとって作品になる。企画から彩色、仕上げまで——ひとつずつ、この松尾のアトリエで生まれます。地元の手仕事だからこそ宿る、機械にはつくれない揺らぎと温もりを大切にしています。</p>
+        <ul class="atelier__tags">
+          <li data-ja="地元制作" data-en="Made locally">地元制作</li>
+          <li data-ja="手仕事" data-en="Handcraft">手仕事</li>
+          <li data-ja="一点もの" data-en="One of a kind">一点もの</li>
+          <li data-ja="ワークショップ" data-en="Workshops">ワークショップ</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ░░ INFO / INFORMATIONS ░░ -->
+    <section class="section info" id="info">
+      <div class="section__inner info__inner">
+        <div class="info__col">
+          <p class="eyebrow" data-reveal><span class="idx">05</span><span data-ja="店舗案内" data-en="Visit">店舗案内</span></p>
+          <h2 class="h-display" data-reveal data-ja="沖縄で、<br>お会いしましょう。" data-en="Come and<br>see us.">沖縄で、<br>お会いしましょう。</h2>
+
+          <div class="rating" data-reveal style="--d:.1s">
+            <span class="rating__stars" aria-hidden="true">★★★★★</span>
+            <span class="rating__num">5.0</span>
+            <span class="rating__count" data-ja="Google クチコミ 45件" data-en="5.0 · 45 Google reviews">Google クチコミ 45件</span>
+          </div>
+
+          <dl class="info__list">
+            <div data-reveal><dt data-ja="住所" data-en="Address">住所</dt>
+              <dd>〒900-0014<br>沖縄県那覇市松尾 2-21-10</dd></div>
+            <div data-reveal style="--d:.06s"><dt data-ja="営業時間" data-en="Hours">営業時間</dt>
+              <dd data-ja="毎日 10:00 – 18:00" data-en="Daily · 10:00 – 18:00">毎日 10:00 – 18:00</dd></div>
+            <div data-reveal style="--d:.12s"><dt data-ja="電話" data-en="Phone">電話</dt>
+              <dd><a href="tel:+81988948880">+81 98-894-8880</a></dd></div>
+          </dl>
+
+          <a class="info__maps" data-reveal style="--d:.2s" target="_blank" rel="noopener"
+             href="https://www.google.com/maps/search/?api=1&query=PAINT%20STUDIO%20OKI%20%E6%B2%96%E7%B8%84%E7%9C%8C%E9%82%A3%E8%A6%87%E5%B8%82%E6%9D%BE%E5%B0%BE2-21-10"
+             data-ja="Google マップで開く" data-en="Open in Google Maps">Google マップで開く<span>↗</span></a>
+        </div>
+
+        <div class="info__map" id="infoMap" data-reveal style="--d:.1s">
+          <!-- src différée (data-src) : chargée par script.js quand la section
+               approche, pour éviter que l'iframe ne vole le focus et fasse
+               scroller la page en bas au chargement. -->
+          <iframe title="PAINT STUDIO OKINAWA の地図"
+            data-src="https://www.google.com/maps?q=%E6%B2%96%E7%B8%84%E7%9C%8C%E9%82%A3%E8%A6%87%E5%B8%82%E6%9D%BE%E5%B0%BE2-21-10&z=17&output=embed"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ░░ Footer ░░ -->
+  <footer class="footer">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="footer__mark">PAINT<i>STUDIO</i></span>
+        <span class="footer__sub">OKINAWA</span>
+        <p data-ja="色を、かたちに。<br>沖縄・那覇 松尾のアートスタジオ" data-en="Colour, given form.<br>An art studio in Matsuo, Naha, Okinawa.">色を、かたちに。<br>沖縄・那覇 松尾のアートスタジオ</p>
+      </div>
+      <nav class="footer__nav">
+        <a href="#about"    data-ja="私たち" data-en="About">私たち</a>
+        <a href="#fig3d"    data-ja="3Dで見る" data-en="In 3D">3Dで見る</a>
+        <a href="#experience" data-ja="体験" data-en="Experience">体験</a>
+        <a href="#atelier"  data-ja="工房" data-en="Studio">工房</a>
+        <a href="#info"     data-ja="店舗案内" data-en="Visit">店舗案内</a>
+      </nav>
+      <dl class="footer__contact">
+        <dd>〒900-0014 沖縄県那覇市松尾 2-21-10</dd>
+        <dd data-ja="毎日 10:00 – 18:00" data-en="Daily 10:00 – 18:00">毎日 10:00 – 18:00</dd>
+        <dd><a href="tel:+81988948880">+81 98-894-8880</a></dd>
+        <dd><a href="https://www.instagram.com/paintstudio_okinawa/" target="_blank" rel="noopener">Instagram @paintstudio_okinawa ↗</a></dd>
+      </dl>
+    </div>
+    <nav class="footer__legal">
+      <a href="privacy.html" data-ja="プライバシーポリシー" data-en="Privacy Policy">プライバシーポリシー</a>
+      <a href="tokusho.html" data-ja="特定商取引法に基づく表記" data-en="Legal Notice">特定商取引法に基づく表記</a>
+      <a href="contact.html" data-ja="お問い合わせ・運営者情報" data-en="Contact & Operator">お問い合わせ・運営者情報</a>
+    </nav>
+    <div class="footer__base">
+      <span>© 2026 PAINT STUDIO OKINAWA</span>
+      <span>沖縄県那覇市 松尾</span>
+    </div>
+  </footer>
+
+  <script src="assets/vendor/gsap.min.js"></script>
+  <script src="assets/vendor/three.min.js"></script>
+  <script src="assets/vendor/OBJLoader.js"></script>
+  <script src="assets/vendor/OrbitControls.js"></script>
+  <script src="script.js?v=1"></script>
+</body>
+</html>

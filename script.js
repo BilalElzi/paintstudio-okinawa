@@ -301,7 +301,7 @@
 
     const OFF     = 78;   // hors écran (vw depuis le centre) — assez loin pour ne jamais dépasser dans les bords, même sur mobile
     const anchorX = 32;   // position finale gauche/droite (vw depuis le centre) — desktop
-    const anchorY = 30;   // position finale haut/bas (vh depuis le centre) — mobile
+    const anchorY = 21;   // position finale haut/bas (vh depuis le centre) — mobile
     const CLOSED  = "inset(0 50% 0 50%)";  // texte masqué (fente centrale)
     const OPEN    = "inset(0 0% 0 0%)";    // texte révélé
 
